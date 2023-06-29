@@ -196,8 +196,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         for ingredient in ingredients:
             file_with_ingredients.append('{}: {} {}.'.format(*ingredient))
         file = HttpResponse(
-            'Cписок покупок:\n' +
-            '\n'.join(file_with_ingredients),
+            'Cписок покупок:\n' + '\n'.join(file_with_ingredients),
             content_type='text/plain'
         )
         file['Content-Disposition'] = 'attachment; filename=shopping_list.txt'
