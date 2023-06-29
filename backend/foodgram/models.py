@@ -1,6 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from foodgram_users.models import User
+from users.models import User
 
 MAX_LENGTH_NAME = 200
 MAX_LENGTH_SLUG = 50
@@ -99,13 +99,13 @@ class Recipe(models.Model):
 class IngredientRecipe(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
-        related_name='ingredients',
+        related_name='recipe_ingredients',
         on_delete=models.CASCADE,
         verbose_name='Ингредиент'
     )
     recipe = models.ForeignKey(
         Recipe,
-        related_name='recipes',
+        related_name='ingredient_recipes',
         on_delete=models.CASCADE,
         verbose_name='Рецепт'
     )
@@ -117,6 +117,12 @@ class IngredientRecipe(models.Model):
     class Meta:
         verbose_name = 'Ингредиент для рецепта'
         verbose_name_plural = 'Ингредиенты для рецепта'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_recipe_ingredient'
+            )
+        ]
 
     def __str__(self):
         return (f'{self.recipe.name}: '
@@ -128,18 +134,17 @@ class IngredientRecipe(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(
         User,
-        related_name='user_favorite_recipes',
         on_delete=models.CASCADE,
         verbose_name='Автор списка избранного'
     )
     recipe = models.ForeignKey(
         Recipe,
-        related_name='favorite_recipes',
         on_delete=models.CASCADE,
         verbose_name='Избранный рецепт'
     )
 
     class Meta:
+        default_related_name = 'favorite_recipes'
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
 
@@ -147,21 +152,20 @@ class Favorite(models.Model):
         return f'{self.user.username}: {self.recipe.name}'
 
 
-class ShoppingList(models.Model):
+class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
-        related_name='user_shopping_list',
         on_delete=models.CASCADE,
         verbose_name='Автор списка покупок'
     )
     recipe = models.ForeignKey(
         Recipe,
-        related_name='shopping_list',
         on_delete=models.CASCADE,
         verbose_name='Рецепт в списке покупок'
     )
 
     class Meta:
+        default_related_name = 'shopping_cart'
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
 

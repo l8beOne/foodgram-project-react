@@ -26,9 +26,9 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
 
-    'foodgram_api.apps.FoodgramApiConfig',
+    'api.apps.ApiConfig',
     'foodgram.apps.FoodgramConfig',
-    'foodgram_users.apps.FoodgramUsersConfig',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -97,7 +97,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-AUTH_USER_MODEL = 'foodgram_users.User'
+AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 
@@ -113,7 +113,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': [
-        'foodgram_api.pagination.CustomPagination',
+        'api.pagination.CustomPagination',
     ],
     'PAGE_SIZE': 6,
 }

@@ -1,10 +1,10 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from foodgram.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
-                             ShoppingList, Tag)
-from foodgram_users.models import Follow, User
+                             ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from users.models import Follow, User
 
 from .validators import validate_username
 
@@ -206,7 +206,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_list(self, obj):
         return (
             self.context.get('request').user.is_authenticated
-            and ShoppingList.objects.filter(
+            and ShoppingCart.objects.filter(
                 user=self.context['request'].user,
                 recipe=obj).exists()
         )
