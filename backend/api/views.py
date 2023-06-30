@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from foodgram.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                              ShoppingCart, Tag)
+from requests.exceptions import RequestException
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -136,21 +137,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=request.user,
                 recipe=recipe
             )
-            if created:
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            else:
-                return Response(
-                    {'detail': 'Рецепт уже находится в избранном.'},
-                    status=status.HTTP_200_OK
-                )
+        except RequestException as e:
+            return Response(
+                {'detail': f'Ошибка при выполнении запроса: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         except Exception as e:
             return Response(
                 {'detail': f'Произошла ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        if created:
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'detail': 'Рецепт уже находится в избранном.'},
+            status=status.HTTP_200_OK
+        )
 
     @favorite.mapping.delete
     def delete_from_favorite(self, request, **kwargs):
@@ -177,21 +182,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=request.user,
                 recipe=recipe
             )
-            if created:
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            else:
-                return Response(
-                    {'detail': 'Рецепт уже находится в списке покупок.'},
-                    status=status.HTTP_200_OK
-                )
+        except RequestException as e:
+            return Response(
+                {'detail': f'Ошибка при выполнении запроса: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         except Exception as e:
             return Response(
                 {'detail': f'Произошла ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        if created:
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'detail': 'Рецепт уже находится в списке покупок.'},
+            status=status.HTTP_200_OK
+        )
 
     @shopping_cart.mapping.delete
     def delete_from_shopping_cart(self, request, **kwargs):
