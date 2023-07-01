@@ -1,10 +1,10 @@
+from django.db import IntegrityError
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from foodgram.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                              ShoppingCart, Tag)
-from requests.exceptions import RequestException
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -137,15 +137,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=request.user,
                 recipe=recipe
             )
-        except RequestException as e:
-            return Response(
-                {'detail': f'Ошибка при выполнении запроса: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        except Exception as e:
+        except IntegrityError as e:
             return Response(
                 {'detail': f'Произошла ошибка: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status=status.HTTP_400_BAD_REQUEST
             )
         if created:
             return Response(
@@ -182,15 +177,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=request.user,
                 recipe=recipe
             )
-        except RequestException as e:
-            return Response(
-                {'detail': f'Ошибка при выполнении запроса: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        except Exception as e:
+        except IntegrityError as e:
             return Response(
                 {'detail': f'Произошла ошибка: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status=status.HTTP_400_BAD_REQUEST
             )
         if created:
             return Response(
