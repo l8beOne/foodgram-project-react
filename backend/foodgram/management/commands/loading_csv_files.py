@@ -1,7 +1,6 @@
 import csv
 
 from django.core.management.base import BaseCommand
-
 from foodgram.models import Ingredient
 
 CSV_PATH = '/Users/klimentiy/Dev/foodgram-project-react/backend/'

@@ -69,7 +69,7 @@ jobs:
     - name: Set up nodeJS
       uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 13.12.0
 
     - name: Install dependencies
       run: |
@@ -101,7 +101,7 @@ jobs:
           push: true
           tags: l8beone/foodgram_frontend:latest
   build_nginx_and_push_to_docker_hub:
-    name: Push gateway Docker image to DockerHub
+    name: Push nginx Docker image to DockerHub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
