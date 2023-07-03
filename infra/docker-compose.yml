@@ -1,12 +1,27 @@
 version: '3.3'
-services:
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+volumes:
+  pg_data:
+  static:
+  media:
+
+services:
+  db:
+    image: postgres:13
+    env_file: .env
     volumes:
-      - ../frontend/:/app/result_build/
+      - pg_data:/var/lib/postgresql/data
+  backend:
+    image: l8beone/foodgram_backend
+    env_file: .env
+    volumes:
+      - static:/backend_static
+      - media:/backend
+  frontend:
+    image: l8beone/foodgram_frontend
+    command: cp -r /app/result_build/. /frontend_static/
+    volumes:
+      - static:/frontend_static
   nginx:
     image: nginx:1.19.3
     ports:
@@ -15,3 +30,5 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      - static:/var/html/static/django/
+      - media:/var/html/media/

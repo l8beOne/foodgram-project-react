@@ -11,7 +11,7 @@ SECRET_KEY = 'django-insecure-^d-mv=oikanf(_=l0%)#36f4gsgh8kbd$u(a(q=b=m#sk573a&
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['158.160.66.201', 'localhost', '127.0.0.1', 'uririfoodgram.serveblog.net']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -100,6 +100,7 @@ USE_TZ = True
 AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'collected_static'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
