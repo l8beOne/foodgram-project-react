@@ -1,7 +1,7 @@
 import csv
 import os
-from backend_foodgram import settings
 
+from backend_foodgram import settings
 from django.core.management.base import BaseCommand
 from foodgram.models import Ingredient
 
