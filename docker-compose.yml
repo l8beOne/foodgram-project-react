@@ -31,7 +31,7 @@ services:
       - ../infra/nginx.conf:/etc/nginx/sites-enabled/default 
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/usr/share/nginx/html/static/
-      - media:/usr/share/nginx/html/media/
+      - static:/var/html/static/
+      - media:/var/html/media/
     depends_on:
       - backend
