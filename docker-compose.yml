@@ -23,7 +23,7 @@ services:
     volumes:
       - static:/frontend_static
   nginx:
-    image: nginx:1.19.3
+    image: l8beone/foodgram_nginx
     ports:
       - 8001:80
     volumes:
