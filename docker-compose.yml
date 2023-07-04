@@ -17,8 +17,8 @@ services:
       - db
     env_file: .env
     volumes:
-      - static:/backend_static
-      - media:/backend
+      - static:/app/backend_static/
+      - media:/app/media/
   frontend:
     image: l8beone/foodgram_frontend
     volumes:
@@ -31,7 +31,7 @@ services:
       - ../infra/nginx.conf:/etc/nginx/sites-enabled/default 
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/var/html/static/
-      - media:/var/html/media/
+      - static:/usr/share/nginx/html/static/
+      - media:/usr/share/nginx/html/media/
     depends_on:
       - backend
