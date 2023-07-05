@@ -43,7 +43,7 @@ class UserViewSet(mixins.CreateModelMixin,
 
     @action(detail=False, methods=['post'],
             permission_classes=(IsAuthenticated,))
-    def change_password(self, request):
+    def set_password(self, request):
         serializer = ChangePasswordSerializer(request.user, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -53,7 +53,7 @@ class UserViewSet(mixins.CreateModelMixin,
     @action(detail=False, methods=['get'],
             permission_classes=(IsAuthenticated,),
             pagination_class=CustomPagination)
-    def following_list(self, request):
+    def subscriptions(self, request):
         queryset = User.objects.filter(following__user=request.user)
         paginated_pages = self.paginate_queryset(queryset)
         serializer = FollowingListSerializer(
@@ -65,7 +65,7 @@ class UserViewSet(mixins.CreateModelMixin,
 
     @action(detail=True, methods=['post'],
             permission_classes=(IsAuthenticated,))
-    def follow_author(self, request, **kwargs):
+    def subscribe(self, request, **kwargs):
         author = get_object_or_404(User, id=kwargs['pk'])
         serializer = FollowAuthorSerializer(
             author,
@@ -79,8 +79,8 @@ class UserViewSet(mixins.CreateModelMixin,
             status=status.HTTP_201_CREATED
         )
 
-    @follow_author.mapping.delete
-    def unfollow_author(self, request, **kwargs):
+    @subscribe.mapping.delete
+    def unsubscribe(self, request, **kwargs):
         author = get_object_or_404(User, id=kwargs['pk'])
         get_object_or_404(Follow, user=request.user,
                           author=author).delete()
