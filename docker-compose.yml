@@ -17,7 +17,7 @@ services:
       - db
     env_file: .env
     volumes:
-      - static:/backend_static
+      - static:/backend_static/static/
       - media:/app/media/
   frontend:
     image: l8beone/foodgram_frontend
