@@ -35,6 +35,7 @@ class UserViewSet(mixins.CreateModelMixin,
         return CustomUserCreateSerializer
 
     @action(detail=False, methods=['get'],
+            pagination_class=None,
             permission_classes=(IsAuthenticated,))
     def me(self, request):
         serializer = UserReadSerializer(request.user)

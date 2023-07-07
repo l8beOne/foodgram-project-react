@@ -18,11 +18,11 @@ class RecipeFilter(FilterSet):
         fields = ('author', 'tags',)
 
     def is_in_favorite_filter(self, queryset, name, value):
-        user = self.request.user
-        if value:
-            return queryset.filter(favorite_recipes__user=user)
+        if value and self.request.user.is_authenticated:
+            return queryset.filter(favorite_recipes__user=self.request.user)
+        return queryset.exclude(favorite_recipes__user=self.request.user)
 
     def is_in_shopping_list_filter(self, queryset, name, value):
-        user = self.request.user
-        if value:
-            return queryset.filter(shopping_cart__user=user)
+        if value and self.request.user.is_authenticated:
+            return queryset.filter(shopping_cart__user=self.request.user)
+        return queryset.exclude(shopping_cart__user=self.request.user)

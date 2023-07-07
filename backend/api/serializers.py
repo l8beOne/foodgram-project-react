@@ -3,6 +3,7 @@ from drf_base64.fields import Base64ImageField
 from foodgram.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                              ShoppingCart, Tag)
 from rest_framework import serializers
+from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
 from users.models import Follow, User
 
@@ -214,10 +215,22 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
+    quantity = serializers.IntegerField(write_only=True)
 
     class Meta:
-        model = IngredientRecipe
+        model = Ingredient
         fields = ('id', 'quantity')
+
+    def validate_quantity(self, quantity):
+        if quantity <= 0:
+            raise ValidationError(
+                'Количество ингредиента должно быть больше нуля!'
+            )
+        if quantity >= 100000:
+            raise ValidationError(
+                'Количество любого ингредиента не должно быть больше 100000!'
+            )
+        return quantity
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -250,7 +263,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(author=self.context['request'].user,
                                        **validated_data)
         for ingredient in ingredients:
-            current_ingredient, status = Ingredient.objects.get(
+            current_ingredient = Ingredient.objects.get(
                 pk=ingredient['id']
             )
             IngredientRecipe.objects.create(
@@ -271,7 +284,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             ingredients_data = validated_data.pop('ingredients')
             lst = []
             for ingredient in ingredients_data:
-                current_ingredient, status = Ingredient.objects.get(
+                current_ingredient = Ingredient.objects.get(
                     pk=ingredient['id']
                 )
                 lst.append(current_ingredient)
