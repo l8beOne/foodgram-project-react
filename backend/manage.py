@@ -10,6 +10,11 @@ def main():
         'DJANGO_SETTINGS_MODULE',
         'backend_foodgram.settings'
     )
+    print(os.getenv('POSTGRES_DB', 'django'),
+          os.getenv('POSTGRES_USER', 'django'),
+          os.getenv('POSTGRES_PASSWORD', ''),
+          os.getenv('DB_HOST', ''),
+          os.getenv('DB_PORT', 5432))
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

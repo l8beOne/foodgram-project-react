@@ -28,7 +28,6 @@ services:
     ports:
       - 8001:80
     volumes:
-      - ../infra/nginx.conf:/etc/nginx/sites-enabled/default 
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/var/html/static/
