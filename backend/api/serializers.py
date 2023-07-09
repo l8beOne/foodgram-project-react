@@ -302,19 +302,24 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                     'Количество ингредиента должно быть больше 0')
         return data
 
+    def ingredients_set(self, recipe, ingredients):
+        ingredient_list = []
+        for ingredient in ingredients:
+            ingredient_list.append(
+                IngredientRecipe(
+                    recipe=recipe,
+                    ingredient=ingredient['id'],
+                    quantity=ingredient['quantity']
+                )
+            )
+        IngredientRecipe.objects.bulk_create(ingredient_list)
+
+
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=self.context['request'].user,
                                        **validated_data)
-        for ingredient in ingredients:
-            current_ingredient = Ingredient.objects.get(
-                pk=ingredient['id']
-            )
-            IngredientRecipe.objects.create(
-                ingredient=current_ingredient,
-                recipe=recipe,
-                quantity=ingredient['quantity']
-            )
+        self.ingredients_set(recipe, ingredients)
         return recipe
 
     def update(self, instance, validated_data):
@@ -324,15 +329,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time)
         instance.tag = validated_data.get('tag', instance.tag)
-        if 'ingredients' in validated_data:
-            ingredients_data = validated_data.pop('ingredients')
-            lst = []
-            for ingredient in ingredients_data:
-                current_ingredient = Ingredient.objects.get(
-                    pk=ingredient['id']
-                )
-                lst.append(current_ingredient)
-            instance.ingredients.set(lst)
+        ingredients = validated_data.pop('ingredients')
+        IngredientRecipe.objects.filter(
+            recipe=instance,
+            ingredient__in=instance.ingredients.all()).delete()
+        self.ingredients_set(instance, ingredients)
         instance.save()
         return instance
 
