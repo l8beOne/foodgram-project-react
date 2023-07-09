@@ -1,8 +1,9 @@
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from foodgram.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                              ShoppingCart, Tag)
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
 from users.models import Follow, User
@@ -282,24 +283,25 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'cooking_time': {'required': True},
         }
 
-    def validate_ingredients(self, data):
-        if not data:
-            raise serializers.ValidationError(
-                'Добавьте ингредиенты!'
-            )
-        ingredients = self.data.get('ingredients')
+    def validate_ingredients(self, value):
+        ingredients = value
+        if not ingredients:
+            raise exceptions.ValidationError({
+                'ingredients': 'Нужен хотя бы один ингредиент!'
+            })
         ingredients_list = []
-        for ingredient in ingredients:
-            ingredient_id = ingredient['id']
-            if ingredient_id in ingredients_list:
-                raise serializers.ValidationError(
-                    'Одинаковых ингредиентов не должно быть!'
-                )
-            ingredients_list.append(ingredient_id)
-            if int(ingredient.get('amount')) < 1:
-                raise serializers.ValidationError(
-                    'Количество ингредиента должно быть больше 0')
-        return data
+        for item in ingredients:
+            ingredient = get_object_or_404(Ingredient, id=item['id'])
+            if ingredient in ingredients_list:
+                raise exceptions.ValidationError({
+                    'ingredients': 'Ингридиенты не могут повторяться!'
+                })
+            if int(item['quantity']) <= 0:
+                raise exceptions.ValidationError({
+                    'quantity': 'Количество ингредиента должно быть больше 0!'
+                })
+            ingredients_list.append(ingredient)
+        return value
 
     def ingredients_set(self, recipe, ingredients):
         ingredient_list = []
@@ -318,13 +320,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        IngredientRecipe.objects.bulk_create(
-            [IngredientRecipe(
-                ingredient=ingredient.get('id'),
-                recipe=recipe,
-                quantity=ingredient.get('quantity'),
-            ) for ingredient in ingredients]
-        )
+        self.ingredients_set(recipe, ingredients)
         return recipe
 
     def update(self, recipe, instance, validated_data):
