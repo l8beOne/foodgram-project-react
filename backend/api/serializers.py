@@ -12,10 +12,19 @@ from .validators import validate_username
 
 class UserReadSerializer(UserSerializer):
     """Получение списка пользователей."""
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name')
+
+    def get_is_subscribed(self, obj):
+        if (self.context.get('request')
+           and not self.context['request'].user.is_anonymous):
+            return Follow.objects.filter(user=self.context['request'].user,
+                                            author=obj).exists()
+        return False
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):

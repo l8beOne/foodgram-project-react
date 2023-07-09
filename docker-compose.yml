@@ -12,7 +12,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
   backend:
-    image: l8beone/foodgram_backend
+    image: l8beone/foodgram_backend:latest
     depends_on:
       - db
     env_file: .env
