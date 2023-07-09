@@ -314,7 +314,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         IngredientRecipe.objects.bulk_create(ingredient_list)
 
-
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=self.context['request'].user,
