@@ -28,7 +28,7 @@ class RecipeFilter(FilterSet):
         return queryset.exclude(shopping_cart__user=self.request.user)
 
 
-class IngredientFilter(filters.FilterSet):
+class IngredientFilter(FilterSet):
     name = filters.CharFilter(lookup_expr='startswith')
 
     class Meta:
