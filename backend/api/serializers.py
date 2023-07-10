@@ -282,25 +282,27 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'cooking_time': {'required': True},
         }
 
-    def validate_ingredients(self, data):
-        if not data:
-            raise exceptions.ValidationError(
-                'Нужен хотя бы один ингредиент!'
+    def validate(self, obj):
+        for field in ['name', 'text', 'cooking_time']:
+            if not obj.get(field):
+                raise serializers.ValidationError(
+                    f'{field} - Обязательное поле.'
+                )
+        if not obj.get('tags'):
+            raise serializers.ValidationError(
+                'Нужно указать минимум 1 тег.'
             )
-        ingredients = data.get('ingredients')
-        ingredients_list = []
-        for ingredient in ingredients:
-            ingredient_id = ingredient['id']
-            if ingredient_id in ingredients_list:
-                raise exceptions.ValidationError(
-                    'Ингридиенты не могут повторяться!'
-                )
-            ingredients_list.append(ingredient_id)
-            if int(ingredient.get('quantity')) <= 0:
-                raise exceptions.ValidationError(
-                    'Количество ингредиента должно быть больше 0!'
-                )
-        return data
+        if not obj.get('ingredients'):
+            raise serializers.ValidationError(
+                'Нужно указать минимум 1 ингредиент.'
+            )
+        inrgedient_id_list = [item['id'] for item in obj.get('ingredients')]
+        unique_ingredient_id_list = set(inrgedient_id_list)
+        if len(inrgedient_id_list) != len(unique_ingredient_id_list):
+            raise serializers.ValidationError(
+                'Ингредиенты должны быть уникальны.'
+            )
+        return obj
 
     def ingredients_set(self, recipe, ingredients):
         ingredient_list = []
