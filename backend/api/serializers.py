@@ -2,7 +2,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from foodgram.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                              ShoppingCart, Tag)
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
 from users.models import Follow, User
