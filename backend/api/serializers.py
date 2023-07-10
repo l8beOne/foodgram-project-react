@@ -195,11 +195,12 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
+    amount = serializers.ReadOnlyField(source='quantity')
 
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'name',
-                  'measurement_unit', 'quantity')
+                  'measurement_unit', 'amount')
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -241,22 +242,22 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all()
     )
-    quantity = serializers.IntegerField(write_only=True)
+    amount = serializers.IntegerField(write_only=True, source="quantity")
 
     class Meta:
         model = IngredientRecipe
-        fields = ('id', 'quantity')
+        fields = ('id', 'amount')
 
-    def validate_quantity(self, quantity):
-        if quantity <= 0:
+    def validate_quantity(self, amount):
+        if amount <= 0:
             raise ValidationError(
                 'Количество ингредиента должно быть больше нуля!'
             )
-        if quantity >= 100000:
+        if amount >= 100000:
             raise ValidationError(
                 'Количество любого ингредиента не должно быть больше 100000!'
             )
-        return quantity
+        return amount
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -276,6 +277,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'name', 'text',
                   'cooking_time', 'author')
         extra_kwargs = {
+            'ingredients': {'required': True, 'allow_blank': False},
             'tags': {'required': True, 'allow_blank': False},
             'name': {'required': True, 'allow_blank': False},
             'text': {'required': True, 'allow_blank': False},
@@ -296,9 +298,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 raise exceptions.ValidationError({
                     'ingredients': 'Ингридиенты не могут повторяться!'
                 })
-            if int(item['quantity']) <= 0:
+            if int(item['amount']) <= 0:
                 raise exceptions.ValidationError({
-                    'quantity': 'Количество ингредиента должно быть больше 0!'
+                    'amount': 'Количество ингредиента должно быть больше 0!'
                 })
             ingredients_list.append(ingredient)
         return value
@@ -310,7 +312,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 IngredientRecipe(
                     recipe=recipe,
                     ingredient=ingredient['id'],
-                    quantity=ingredient['quantity']
+                    quantity=ingredient['amount']
                 )
             )
         IngredientRecipe.objects.bulk_create(ingredient_list)

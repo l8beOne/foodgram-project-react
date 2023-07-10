@@ -1,15 +1,15 @@
 from django_filters import FilterSet, filters
-from foodgram.models import Recipe, Tag
+from foodgram.models import Ingredient, Recipe, Tag
 
 
 class RecipeFilter(FilterSet):
     tags = filters.ModelMultipleChoiceFilter(queryset=Tag.objects.all(),
                                              field_name='tags__slug',
                                              to_field_name='slug',)
-    is_in_favorite = filters.BooleanFilter(
+    is_in_favorite = filters.NumberFilter(
         method='is_in_favorite_filter'
     )
-    is_in_shopping_list = filters.BooleanFilter(
+    is_in_shopping_list = filters.NumberFilter(
         method='is_in_shopping_list_filter'
     )
 
@@ -26,3 +26,11 @@ class RecipeFilter(FilterSet):
         if value and self.request.user.is_authenticated:
             return queryset.filter(shopping_cart__user=self.request.user)
         return queryset.exclude(shopping_cart__user=self.request.user)
+
+
+class IngredientFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='startswith')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
