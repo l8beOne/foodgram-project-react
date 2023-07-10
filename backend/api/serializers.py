@@ -238,9 +238,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 
 class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all()
-    )
+    id = serializers.IntegerField()
     amount = serializers.IntegerField(write_only=True, source="quantity")
 
     class Meta:
@@ -284,12 +282,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'cooking_time': {'required': True},
         }
 
-    def validate_ingredients(self, obj):
-        if not obj.get('ingredients'):
+    def validate_ingredients(self, data):
+        if not data:
             raise exceptions.ValidationError(
                 'Нужен хотя бы один ингредиент!'
             )
-        ingredients = obj.get('ingredients')
+        ingredients = data.get('ingredients')
         ingredients_list = []
         for ingredient in ingredients:
             ingredient_id = ingredient['id']
@@ -302,7 +300,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 raise exceptions.ValidationError(
                     'Количество ингредиента должно быть больше 0!'
                 )
-        return obj
+        return data
 
     def ingredients_set(self, recipe, ingredients):
         ingredient_list = []
