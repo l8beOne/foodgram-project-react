@@ -16,4 +16,20 @@ urlpatterns = [
     path('', include(router.urls)),
     path(r'auth/', include('djoser.urls')),
     path(r'auth/', include('djoser.urls.authtoken')),
+    path(
+        'recipes/<int:pk>/shopping_cart/',
+        views.RecipeViewSet.as_view(
+            {
+                'post': 'shopping_cart',
+                'delete': 'delete_from_shopping_cart'
+            }
+        ), name='shopping_cart'),
+    path(
+        'recipes/<int:pk>/favorite/',
+        views.RecipeViewSet.as_view(
+            {
+                'post': 'favorite',
+                'delete': 'delete_from_favorite'
+            }
+        ), name='favorite'),
 ]
