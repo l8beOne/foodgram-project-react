@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from foodgram.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
@@ -285,25 +284,25 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'cooking_time': {'required': True},
         }
 
-    def validate_ingredients(self, value):
-        ingredients = value
-        if not ingredients:
-            raise exceptions.ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент!'
-            })
+    def validate_ingredients(self, data):
+        if not data:
+            raise exceptions.ValidationError(
+                'Нужен хотя бы один ингредиент!'
+            )
+        ingredients = self.data.get('ingredients')
         ingredients_list = []
-        for item in ingredients:
-            ingredient = get_object_or_404(Ingredient, id=item['id'])
-            if ingredient in ingredients_list:
-                raise exceptions.ValidationError({
-                    'ingredients': 'Ингридиенты не могут повторяться!'
-                })
-            if int(item['amount']) <= 0:
-                raise exceptions.ValidationError({
-                    'amount': 'Количество ингредиента должно быть больше 0!'
-                })
-            ingredients_list.append(ingredient)
-        return value
+        for ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients_list:
+                raise exceptions.ValidationError(
+                    'Ингридиенты не могут повторяться!'
+                )
+            ingredients_list.append(ingredient_id)
+            if int(ingredient.get('quantity')) <= 0:
+                raise exceptions.ValidationError(
+                    'Количество ингредиента должно быть больше 0!'
+                )
+        return data
 
     def ingredients_set(self, recipe, ingredients):
         ingredient_list = []
@@ -312,7 +311,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 IngredientRecipe(
                     recipe=recipe,
                     ingredient=ingredient['id'],
-                    quantity=ingredient['amount']
+                    quantity=ingredient['quantity']
                 )
             )
         IngredientRecipe.objects.bulk_create(ingredient_list)
