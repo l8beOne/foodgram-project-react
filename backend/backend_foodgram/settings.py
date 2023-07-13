@@ -1,17 +1,23 @@
 import os
+from distutils.util import strtobool
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
+local_url = os.getenv('LOCAL_URL', default='127.0.0.1')
+local_server_name = os.getenv('LOCALHOST', default='localhost')
+web_url = os.getenv('WEB_URL', default='uririfoodgram.serveblog.net')
+server_ip = os.getenv('SERVER_IP')
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-^d-mv=oikanf(_=l0%)#36f4gsgh8kbd$u(a(q=b=m#sk573a&'
+SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
-DEBUG = True
+DEBUG = strtobool(os.getenv('DEBUG', default='False'))
 
-ALLOWED_HOSTS = ['158.160.66.201', 'localhost', '127.0.0.1', 'uririfoodgram.serveblog.net']
+ALLOWED_HOSTS = [server_ip, web_url, local_server_name, local_url]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
