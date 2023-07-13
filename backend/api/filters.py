@@ -3,21 +3,27 @@ from foodgram.models import Ingredient, Recipe, Tag
 
 
 class RecipeFilter(FilterSet):
+    author = filters.NumberFilter(
+        field_name='author',
+        lookup_expr='exact'
+    )
+    is_favorited = filters.NumberFilter(
+        method='filter_is_favorited',
+        label='favorite',
+    )
+    is_in_shopping_cart = filters.NumberFilter(
+        method='filter_is_in_shopping_cart',
+        label='shopping_cart',
+    )
     tags = filters.ModelMultipleChoiceFilter(queryset=Tag.objects.all(),
                                              field_name='tags__slug',
                                              to_field_name='slug',)
-    is_favorited = filters.BooleanFilter(
-        method='is_favorited_filter'
-    )
-    is_in_shopping_cart = filters.BooleanFilter(
-        method='is_in_shopping_cart_filter'
-    )
 
     class Meta:
         model = Recipe
         fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart',)
 
-    def is_favorited_filter(self, queryset, name, value):
+    def filter_is_favorited(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
             print("if_is_favourited_filter",
                   value,
@@ -26,9 +32,9 @@ class RecipeFilter(FilterSet):
         print("is_favourited_filter",
               value,
               self.request.user_is_authenticated)
-        return queryset
+        return queryset.exclude(favorite_recipes__user=self.request.user)
 
-    def is_in_shopping_cart_filter(self, queryset, name, value):
+    def filter_is_in_shopping_cart(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
             print("if_is_in_shopping_cart_filter",
                   value,
@@ -37,7 +43,7 @@ class RecipeFilter(FilterSet):
         print("is_in_shopping_cart_filter",
               value,
               self.request.user_is_authenticated)
-        return queryset
+        return queryset.exclude(shopping_cart__user=self.request.user)
 
 
 class IngredientFilter(FilterSet):
